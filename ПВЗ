@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Выбор пункта выдачи до оплаты</title>
+<style>
+  :root { font: 16px/1.55 system-ui, sans-serif; color: #152b25; background: #f7faf7; }
+  body { max-width: 780px; margin: auto; padding: 24px 16px 48px; }
+  h1, h2, h3 { line-height: 1.25; }
+  h1 { font-size: clamp(26px, 5vw, 38px); }
+  a { color: #075647; }
+  li + li { margin-top: 6px; }
+  .demo { max-width: 440px; padding: 14px; border: 1px solid #b9cdc2; border-radius: 14px; background: #eaf4ec; }
+  .point { padding: 9px 12px; margin-block: 8px; border: 1px solid #cbdcd3; border-radius: 9px; background: #fff; }
+  .point p, .point h3 { margin: 4px 0; }
+  .unavailable { background: #fcf1e4; }
+  button, select { font: inherit; min-height: 44px; max-width: 100%; margin: 3px 0; }
+  button { border: 1px solid #316552; border-radius: 7px; padding: 5px 10px; background: #fff; color: #154739; }
+  button:first-of-type { background: #174b3b; color: #fff; }
+  button:focus-visible, select:focus-visible { outline: 3px solid #9b6100; outline-offset: 2px; }
+</style>
+<main>
+  <header>
+    <p>Портфолио Ozon Camp · 19 ноября 2026</p>
+    <h1>Как выбрать пункт выдачи до оплаты</h1>
+    <p>Какие сведения помогут студенту выбрать пункт, подходящий по пути, графику и условиям получения? Сравнили три сервиса, собрали мобильный прототип и исправили две проблемы после экспертной проверки.</p>
+    <p>Агент выполнил кабинетное исследование, прототипирование и функциональную проверку. Кандидат поставил задачу для портфолио. Интервью и пользовательских тестов не проводили.</p>
+  </header>
+
+  <h2>Что подтвердили источники</h2>
+  <p>Сверили семь официальных материалов по четырём критериям — путь, часы, условия получения и сравнение вариантов. В авторизованном оформлении эти сценарии не проверяли.</p>
+  <ul>
+    <li><strong>Ozon.</strong> Справка описывает карту рядом с домом или работой и проверку примерки, возврата и частичного отказа. Пешее время и расписание в конкретной корзине не подтверждены. <a href="https://docs.ozon.ru/common/dostavka/kak-najti-punkt-vydachi/">Поиск ПВЗ</a> · <a href="https://docs.ozon.ru/common/dostavka/rating/">Карта при оформлении</a></li>
+    <li><strong>Яндекс Маркет.</strong> Описаны поиск адреса, смена точки и фильтры, включая круглосуточные ПВЗ и примерку. Фильтры зависят от региона и товара. <a href="https://www.yandex.ru/support/market/ru/order/delivery-methods">Выбор доставки</a> · <a href="https://www.yandex.ru/support/market/ru/order/delivery">Условия выдачи</a></li>
+    <li><strong>Lamoda.</strong> Партнёрский API перечисляет адреса, часы и параметры выдачи. Возможность примерки зависит от точки. Клиентская справка о самовывозе доступна частично, вид карточек не подтверждён. <a href="https://www.lamoda.ru/help/article/samovyvoz-ru">Самовывоз</a> · <a href="https://academy.lamoda.ru/news/sposoby-dostavki-v-api/">API</a> · <a href="https://www.lamoda.ru/lp/lamoda_club/">Условия клуба</a></li>
+  </ul>
+  <p>Из открытых отзывов 2022–2026 годов отобрали три рассказа покупателей с конкретным эпизодом выбора или получения. В двух упомянута близость, в одном описано несовпадение показанных и фактических часов. Статус студентов у авторов не установлен. <a href="https://otzovik.com/review_17007621.html">Близость и примерка</a> · <a href="https://www.otzovik.com/review_12910075.html">Расписание</a> · <a href="https://otzovik.com/review_14046976.html">Близость и график</a></p>
+
+  <h2>Гипотеза и решение</h2>
+  <p>Если на одном экране показать путь пешком, часы и примерку, студенту будет проще увидеть компромисс между близостью и удобным временем. Для проверки выбрали единый список. Карта с вечерним фильтром решает вопрос расписания, отдельное сравнение добавляет шаг. Ориентир от учебного корпуса и приоритеты студентов предстоит проверить.</p>
+
+  <h2>Прототип</h2>
+  <p>Адреса и время в демонстрации вымышлены. Выберите обычный сценарий или недоступность ближайшей точки. Для третьего сценария смените решение на шаге проверки.</p>
+  <div class="demo">
+    <label for="scenario">Сценарий</label>
+    <select id="scenario">
+      <option value="regular">Обычный выбор</option>
+      <option value="unavailable">Ближайшая точка недоступна</option>
+    </select>
+    <section id="flow" aria-label="Оформление демонстрационного заказа"></section>
+  </div>
+  <noscript><p>Для работы прототипа включите JavaScript.</p></noscript>
+
+  <h2>Журнал проверки</h2>
+  <ol>
+    <li><strong>Обычный выбор.</strong> Подтвердили ближайшую точку и сверили адрес и часы. Сценарий прошёл до и после правок.</li>
+    <li><strong>Ближайшая точка недоступна.</strong> В первой версии причина и альтернатива не были видны. Добавили объяснение и пометку ближайшей доступной точки. Повторно подтвердили альтернативу.</li>
+    <li><strong>Смена решения.</strong> Возврат из проверки сбрасывал фокус на заголовок. Исправили возврат фокуса на прежнюю точку. В повторном прогоне Tab перевёл фокус к следующему варианту, а подтвердился новый адрес.</li>
+  </ol>
+  <p>Экспертный и функциональный прогоны выполнены в Chromium. Итоговая версия прошла все три сценария и проверку на ширине 320 px без горизонтального переполнения и ошибок JavaScript.</p>
+
+  <h2>Как проверить гипотезу с участниками</h2>
+  <p>Дать студентам задачи с ограничениями по пути, графику и примерке. При одинаковых данных сравнить единый список и последовательный просмотр карточек. Целевая метрика — доля начатых попыток, где первый подтверждённый ПВЗ подходит по всем условиям за 90 секунд от открытия списка. Защитная — доля попыток, где за то же время подтверждён неподходящий пункт. Тайм-аут остаётся в знаменателе обеих метрик.</p>
+  <p>Для защиты кейса кандидат может лично воспроизвести три сценария, проверить источники и объяснить выбор списка и метрик. В резюме указываются только собственные выполненные действия.</p>
+</main>
+<script>
+  const flow = document.getElementById('flow');
+  const scenario = document.getElementById('scenario');
+  const points = [
+    {id: 'near', address: 'Семестровая ул., 4', walk: 4, hours: '10:00–20:00', fitting: 'Есть примерка'},
+    {id: 'mid', address: 'Аудиторный пер., 12', walk: 8, hours: '09:00–22:00', fitting: 'Есть примерка'},
+    {id: 'late', address: 'Сессийная наб., 7', walk: 12, hours: '08:00–23:00', fitting: 'Без примерки'},
+  ];
+  let selected = null;
+
+  function show(markup, focus) {
+    flow.innerHTML = markup;
+    if (focus) flow.querySelector(focus)?.focus({preventScroll: true});
+  }
+
+  function checkout(focus = false) {
+    selected = null;
+    show('<h3>Оформление</h3><p>Футболка · 890 ₽ · ПВЗ пока не выбран</p><button data-action="list">Выбрать пункт выдачи</button>', focus ? '[data-action="list"]' : null);
+  }
+
+  function details(point) {
+    return `<h3>${point.address}</h3><p>${point.walk} мин пешком · ${point.hours} · ${point.fitting}. Для выдачи нужен код.</p>`;
+  }
+
+  function list(restoreFocus = false) {
+    const unavailable = scenario.value === 'unavailable';
+    const rows = points.map(point => {
+      if (unavailable && point.id === 'near') return `<div class="point unavailable">${details(point)}<p>Недоступен. Пункт временно не принимает новые заказы.</p></div>`;
+      const nearest = unavailable && point.id === 'mid' ? '<p><strong>Ближайший доступный пункт</strong></p>' : '';
+      const current = point === selected;
+      return `<div class="point">${nearest}${details(point)}<button data-action="choose" data-point="${point.id}" aria-label="${current ? 'Оставить' : 'Выбрать'} пункт ${point.address}">${current ? 'Текущий выбор' : 'Выбрать'}</button></div>`;
+    });
+    const back = restoreFocus ? '<button data-action="review">К проверке</button>' : '<button data-action="reset">К оформлению</button>';
+    show(`<h3>Пункты выдачи</h3><p>Условное время пешком от учебного корпуса</p>${rows.join('')}${back}`,
+      restoreFocus ? `[data-point="${selected.id}"]` : '[data-action="choose"]');
+  }
+
+  function review() {
+    show(`<h3>Проверьте выбор</h3><div class="point">${details(selected)}</div><button data-action="confirm">Подтвердить пункт</button> <button data-action="change">Изменить пункт</button>`, '[data-action="confirm"]');
+  }
+
+  flow.addEventListener('click', event => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    switch (button.dataset.action) {
+      case 'list': list(); break;
+      case 'choose':
+        selected = points.find(point => point.id === button.dataset.point);
+        review();
+        break;
+      case 'change': list(true); break;
+      case 'review': review(); break;
+      case 'confirm':
+        show(`<h3>Пункт подтверждён</h3><div class="point">${details(selected)}</div><button data-action="reset">Начать заново</button>`, '[data-action="reset"]');
+        break;
+      case 'reset': checkout(true); break;
+    }
+  });
+  scenario.addEventListener('change', () => checkout());
+  checkout();
+</script>
+</html>
