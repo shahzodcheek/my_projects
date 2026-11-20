@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Выбор пункта выдачи</title>
+<style>
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #122b24;
+  background: #eef2e9;
+  --paper: #fbfcf8;
+  --muted: #52665c;
+  --line: #d6e1d6;
+  --brand: #174b3b;
+  --mint: #dcf1d9;
+  --warn: #6c402a;
+  --warn-bg: #fff3e9;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+.shell { width: min(100%, 31rem); min-height: 100svh; margin-inline: auto; background: var(--paper); }
+.topbar {
+  min-height: 4.25rem;
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  border-bottom: 1px solid var(--line);
+  background: #f2f7ed;
+}
+.wordmark { display: flex; align-items: center; gap: .55rem; font-size: .95rem; font-weight: 780; }
+.mark { display: block; width: 1.25rem; height: 1.25rem; border-radius: 50% 50% 50% 16%; background: var(--brand); transform: rotate(-15deg); }
+.demo { color: var(--muted); font-size: .76rem; font-weight: 630; }
+main { padding: 1.25rem 1.25rem 2rem; }
+h1 { margin: .28rem 0 .55rem; font-size: clamp(1.85rem, 6.5vw, 2.65rem); letter-spacing: -.045em; line-height: 1.07; }
+h2 { margin: 0; font-size: 1.06rem; line-height: 1.25; }
+p { margin: 0; line-height: 1.5; }
+.lead { color: var(--muted); max-width: 35ch; }
+.label { font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; font-weight: 760; color: var(--brand); }
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid #92620d; outline-offset: 3px; }
+h1:focus-visible { outline: 2px solid #92620d; outline-offset: 3px; }
+.back {
+  display: flex; align-items: center; min-height: 2.75rem; margin: -.35rem 0 .4rem; padding: .35rem .2rem;
+  border: 0; background: transparent; color: var(--brand); font-size: .91rem; font-weight: 710;
+}
+.card { border: 1px solid var(--line); background: white; border-radius: 1.05rem; padding: .95rem; }
+.section { margin-top: 1.15rem; }
+.summary { display: flex; align-items: center; gap: .8rem; }
+.tile { display: grid; place-items: center; width: 2.8rem; height: 2.8rem; border-radius: .65rem; background: var(--mint); color: var(--brand); font-weight: 800; }
+.summary-details { flex: 1; }
+.small { color: var(--muted); font-size: .88rem; }
+.price { font-weight: 750; white-space: nowrap; }
+strong { font-weight: 750; }
+.primary, .secondary {
+  min-height: 2.95rem; width: 100%; border-radius: .75rem; padding: .6rem .85rem;
+  border: 1px solid var(--brand); font-size: .94rem; font-weight: 750;
+}
+.primary { background: var(--brand); color: white; }
+.primary:hover { background: #10372b; }
+.secondary { background: white; color: var(--brand); }
+.secondary:hover { background: var(--mint); }
+.actions { display: grid; gap: .58rem; margin-top: 1.15rem; }
+.pickup-context {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: .12rem .8rem;
+  margin: .82rem 0; padding: .55rem .7rem; border-radius: .65rem; background: #ebf3e6;
+}
+.pickup-context p { font-size: .8rem; }
+.choices { display: grid; gap: .55rem; padding: 0; margin: 0; list-style: none; }
+.choice { padding: .65rem .75rem .55rem; }
+.choice.chosen { border: 2px solid #417a64; padding: calc(.65rem - 1px) calc(.75rem - 1px) calc(.55rem - 1px); }
+.choice.off { background: #f6f4ec; }
+.row { display: flex; justify-content: space-between; align-items: flex-start; gap: .4rem; }
+.distance { color: var(--brand); font-size: .84rem; font-weight: 770; white-space: nowrap; }
+.meta { margin-top: .25rem; color: var(--muted); font-size: .82rem; }
+.choice-button {
+  width: 100%; min-height: 2.75rem; margin-top: .32rem;
+  border: 0; border-top: 1px solid var(--line);
+  text-align: left; padding: .3rem .05rem; color: var(--brand); background: transparent;
+  display: flex; align-items: center; justify-content: space-between; font-size: .88rem; font-weight: 760;
+}
+.choice-button:hover { text-decoration: underline; }
+.unavailable { margin-top: .43rem; font-size: .8rem; font-weight: 720; color: var(--warn); }
+.reason { font-weight: 490; }
+.option-title {
+  margin: 0 0 .38rem; padding: .18rem .45rem; width: fit-content; border-radius: .25rem;
+  background: var(--mint); font-size: .77rem; font-weight: 780; color: var(--brand);
+}
+.info { margin: .75rem 0 0; display: grid; gap: .4rem; font-size: .91rem; }
+.info div { display: grid; grid-template-columns: 7.3rem 1fr; gap: .4rem; }
+dt { color: var(--muted); }
+dd { margin: 0; }
+.notice { margin-top: .85rem; padding: .75rem .85rem; border-radius: .8rem; background: var(--mint); font-size: .86rem; }
+.success { margin-bottom: .78rem; display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 100%; background: var(--mint); color: var(--brand); font-size: 1.5rem; font-weight: 800; }
+@media (min-width: 560px) {
+  body { padding: 1.3rem 0; }
+  .shell { border-radius: 1.25rem; min-height: 0; overflow: clip; border: 1px solid var(--line); box-shadow: 0 14px 44px #34514014; }
+}
+@media (max-width: 360px) {
+  main { padding-inline: .85rem; }
+  .topbar { padding-inline: .85rem; }
+  .info div { grid-template-columns: 6.75rem 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="wordmark"><span class="mark" aria-hidden="true"></span> Самовывоз</div>
+    <span class="demo">Демонстрационный заказ</span>
+  </header>
+  <main id="app"></main>
+</div>
+<noscript><p>Для прототипа нужен JavaScript в браузере.</p></noscript>
+<script>
+"use strict";
+const unavailableScenario = new URLSearchParams(location.search).get("scenario") === "unavailable";
+const points = [
+  {
+    id: "semester", address: "Семестровая ул., 4", minutes: 4,
+    hours: "10:00–20:00", tryOn: true, arrival: "21 ноября с 12:00",
+    unavailable: unavailableScenario
+  },
+  {
+    id: "auditorium", address: "Аудиторный пер., 12", minutes: 8,
+    hours: "09:00–22:00", tryOn: true, arrival: "21 ноября с 12:00",
+    unavailable: false
+  },
+  {
+    id: "session", address: "Сессийная наб., 7", minutes: 12,
+    hours: "08:00–23:00", tryOn: false, arrival: "22 ноября с 12:00",
+    unavailable: false
+  }
+];
+
+const nearestAvailable = unavailableScenario ? points.find(item => !item.unavailable) : null;
+const app = document.querySelector("#app");
+let point = null;
+let choosingFromReview = false;
+
+function screen(content, focusId = "screen-title") {
+  app.innerHTML = content;
+  if (focusId === "screen-title") window.scrollTo(0, 0);
+  document.getElementById(focusId)?.focus({ preventScroll: focusId === "screen-title" });
+}
+
+function orderScreen() {
+  screen(`
+    <p class="label">Ваш заказ</p>
+    <h1 id="screen-title" tabindex="-1">Оформление</h1>
+    <p class="lead">Выберите, где забрать заказ.</p>
+    <section class="card summary section" aria-label="Состав заказа">
+      <span class="tile" aria-hidden="true">1</span>
+      <div class="summary-details"><h2>Футболка</h2><p class="small">Размер М · 1 шт.</p></div>
+      <span class="price">890 ₽</span>
+    </section>
+    <section class="card section">
+      <h2>Пункт выдачи</h2>
+      <p class="small">${point ? point.address : "Пока не выбран"} · доставка 0 ₽</p>
+    </section>
+    <div class="actions"><button class="primary" data-action="list">Выбрать пункт выдачи</button></div>
+  `);
+}
+
+function pointCard(item) {
+  const chosen = point?.id === item.id;
+  const condition = item.tryOn ? "Есть примерка" : "Без примерки";
+  return `
+    <li class="card choice ${item.unavailable ? "off" : ""} ${chosen ? "chosen" : ""}">
+      ${item.id === nearestAvailable?.id ? '<p class="option-title">Ближайший доступный пункт</p>' : ""}
+      <div class="row">
+        <h2>${item.address}</h2>
+        <p class="distance">${item.minutes} мин</p>
+      </div>
+      <p class="meta">Ежедневно ${item.hours} · ${condition}</p>
+      ${item.unavailable ? `<p class="unavailable">Недоступен для заказа.
+        <span class="reason">Пункт временно не принимает новые заказы.</span></p>` :
+        `<button class="choice-button" id="option-${item.id}" data-action="choose" data-point="${item.id}" aria-label="${chosen ? "Оставить" : "Выбрать"} пункт ${item.address}">
+          ${chosen ? "Текущий выбор" : "Выбрать"} <span aria-hidden="true">→</span>
+        </button>`}
+    </li>
+  `;
+}
+
+function listScreen() {
+  const focusId = choosingFromReview && point ? `option-${point.id}` : "screen-title";
+  screen(`
+    <button class="back" data-action="return-list">← ${choosingFromReview ? "К проверке" : "К оформлению"}</button>
+    <h1 id="screen-title" tabindex="-1">Пункты выдачи</h1>
+    <p class="lead">Сравните путь пешком, часы работы и условия получения.</p>
+    <div class="pickup-context">
+      <p><strong>От учебного корпуса</strong></p><p>Время пешком условное</p>
+    </div>
+    <ul class="choices" aria-label="Пункты выдачи по времени пешком">${points.map(pointCard).join("")}</ul>
+  `, focusId);
+}
+
+function details(item) {
+  return `<dl class="info">
+    <div><dt>Когда забрать</dt><dd>${item.arrival}</dd></div>
+    <div><dt>Часы работы</dt><dd>Ежедневно ${item.hours}</dd></div>
+    <div><dt>Условия</dt><dd>${item.tryOn ? "Есть примерка" : "Без примерки"}. Для выдачи нужен код.</dd></div>
+  </dl>`;
+}
+
+function reviewScreen() {
+  screen(`
+    <button class="back" data-action="change">← К пунктам выдачи</button>
+    <p class="label">Доставка</p>
+    <h1 id="screen-title" tabindex="-1">Проверьте выбор</h1>
+    <p class="lead">Сверьте адрес и время, когда сможете забрать заказ.</p>
+    <section class="card section" aria-label="Выбранный пункт выдачи">
+      <div class="row"><h2>${point.address}</h2><p class="distance">${point.minutes} мин пешком</p></div>
+      ${details(point)}
+    </section>
+    <div class="actions">
+      <button class="primary" data-action="confirm">Подтвердить пункт</button>
+      <button class="secondary" data-action="change">Изменить пункт</button>
+    </div>
+  `);
+}
+
+function doneScreen() {
+  screen(`
+    <div class="success" aria-hidden="true">✓</div>
+    <h1 id="screen-title" tabindex="-1">Пункт подтверждён</h1>
+    <p class="lead">Выбранный пункт для демонстрационного заказа.</p>
+    <section class="card section" aria-label="Подтверждённый пункт выдачи">
+      <h2>${point.address}</h2>
+      ${details(point)}
+    </section>
+    <p class="notice">В демо оплата и создание заказа отключены.</p>
+    <div class="actions"><button class="secondary" data-action="reset">Начать заново</button></div>
+  `);
+}
+
+app.addEventListener("click", event => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+
+  switch (button.dataset.action) {
+    case "list":
+      choosingFromReview = false;
+      listScreen();
+      break;
+    case "return-list":
+      if (choosingFromReview) reviewScreen();
+      else orderScreen();
+      break;
+    case "choose": {
+      const selected = points.find(item => item.id === button.dataset.point);
+      if (!selected || selected.unavailable) return;
+      point = selected;
+      reviewScreen();
+      break;
+    }
+    case "change":
+      choosingFromReview = true;
+      listScreen();
+      break;
+    case "confirm":
+      if (point && !point.unavailable) doneScreen();
+      break;
+    case "reset":
+      point = null;
+      choosingFromReview = false;
+      orderScreen();
+      break;
+  }
+});
+
+orderScreen();
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Способы получения · прототип</title>
+<style>
+  :root {
+    color: #1d2b26;
+    background: #edf4ef;
+    font: 1rem/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ink: #1d2b26; --muted: #53645d; --line: #d4e3d9; --accent: #1d5b46;
+    --canvas: #fbfdfb; --tint: #e8f2eb; --warm: #fff3e7; --warning: #764324;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .shell { max-width: 480px; margin-inline: auto; background: var(--canvas); }
+  header { padding: 15px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  header strong { font-size: 1.05rem; }
+  header span, .muted { color: var(--muted); }
+  header span { font-size: .88rem; }
+  main { padding: 18px 16px 22px; }
+  h1, h2, p { margin: 0; }
+  h1 { font-size: clamp(1.45rem, 6.5vw, 1.92rem); line-height: 1.16; margin-bottom: 8px; letter-spacing: -.035em; }
+  h2 { font-size: 1.03rem; line-height: 1.25; }
+  .context { background: var(--tint); padding: 10px 12px; border-radius: 9px; margin: 12px 0; }
+  .context p + p { margin-top: 3px; }
+  .method { padding: 12px; border: 1px solid var(--line); border-radius: 12px; margin-top: 10px; background: #fff; }
+  .method[aria-label="Текущий способ"] { border-color: #32765d; }
+  .window { margin-top: 7px; font-weight: 650; }
+  .place { margin-top: 4px; font-size: .94rem; }
+  .costs { margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--line); font-size: .94rem; }
+  .total { color: var(--accent); font-weight: 700; }
+  .notice { color: var(--warning); background: var(--warm); border-radius: 7px; padding: 6px 8px; margin: 8px 0 0; font-size: .9rem; }
+  .actions { display: grid; gap: 7px; margin-top: 10px; }
+  button { font: inherit; min-height: 44px; border: 1px solid #3c735d; border-radius: 8px; background: #fff; color: var(--accent); padding: 5px 10px; font-weight: 650; }
+  button:focus-visible { outline: 3px solid #92610c; outline-offset: 2px; }
+  button.primary { background: var(--accent); color: #fff; }
+  button[disabled] { background: #f1f4f2; border-color: var(--line); color: #53645d; }
+  .plain { background: transparent; border: none; justify-self: start; text-align: left; padding-inline: 0; }
+  .summary { margin: 12px 0; padding: 12px; background: var(--tint); border-radius: 8px; }
+  .summary p + p { margin-top: 4px; }
+  .assist { font-size: .9rem; margin-top: 8px; color: var(--muted); }
+  @media (min-width: 520px) {
+    body { padding: 18px 0; }
+    .shell { border: 1px solid var(--line); border-radius: 16px; overflow: clip; }
+  }
+</style>
+</head>
+<body>
+<section class="shell" aria-label="Учебное оформление">
+  <header><strong>Оформление</strong><span>Демонстрационный заказ</span></header>
+  <main id="app"></main>
+</section>
+<script>
+  "use strict";
+  const root = document.getElementById("app");
+  const scenarioKey = new URLSearchParams(location.search).get("scenario");
+  const productPrice = 1590;
+  const money = amount => new Intl.NumberFormat("ru-RU").format(amount) + " ₽";
+  const pickup = (window, onTime) => ({
+    id: "pickup", label: "Самовывоз", fee: 0, place: "Лесная ул., 12 · тестовая точка",
+    window, onTime,
+  });
+  const courier = (window, onTime) => ({
+    id: "courier", label: "Курьер", fee: 249, place: "Садовая ул., 21 · тестовый адрес",
+    window, onTime,
+  });
+  const scenarios = {
+    ready: [pickup("Сегодня, 17:30–19:00", true), courier("Сегодня, 16:00–18:00", true)],
+    late: [pickup("Завтра, 10:00–12:00", false), courier("Сегодня, 17:00–19:00", true)],
+    unknown: [pickup(null, false), courier("Завтра, 10:00–12:00", false)],
+  };
+  const initialMethods = Object.hasOwn(scenarios, scenarioKey) ? scenarios[scenarioKey] : scenarios.ready;
+  let methods = initialMethods.map(method => ({...method}));
+  let selected = null;
+  let refreshCount = 0;
+  let availabilityMessage = "";
+
+  function render(markup, focus) {
+    root.innerHTML = markup;
+    if (focus) root.querySelector(focus)?.focus({preventScroll: true});
+  }
+
+  function card(method) {
+    const known = Boolean(method.window);
+    const status = known
+      ? (!method.onTime ? '<p class="notice">Позже нужного срока</p>' : "")
+      : '<p class="notice">Цена рассчитана, окно выдачи пока не подтверждено. Проверьте доступность или вернитесь в корзину.</p>';
+    const retry = known ? "" : '<button type="button" data-action="recheck">Проверить доступность</button>';
+    const result = !known && availabilityMessage
+      ? `<p class="assist" role="status">${availabilityMessage}</p>`
+      : "";
+    return `
+      <article class="method" aria-label="${method === selected ? "Текущий способ" : method.label}">
+        <h2>${method.label}</h2>
+        <p class="window">${method.window ?? "Время уточняется"}</p>
+        <p class="place muted">${method.place}</p>
+        <div class="costs">
+          <p>Получение ${money(method.fee)}</p>
+          <p class="total">Итого с товаром ${money(productPrice + method.fee)}</p>
+        </div>
+        ${status}
+        <div class="actions">
+          <button type="button" data-action="choose" data-method="${method.id}" aria-label="Выбрать ${method.label.toLowerCase()}" ${known ? "" : "disabled"}>
+            ${method === selected ? "Оставить выбор" : "Выбрать"}
+          </button>
+          ${retry}
+        </div>
+        ${result}
+      </article>`;
+  }
+
+  function options(focus) {
+    render(`
+      <h1>Способы получения</h1>
+      <div class="context">
+        <p><strong>Нужен сегодня к 19:30</strong></p>
+        <p class="muted">Подарок · ${money(productPrice)} · условия демо</p>
+      </div>
+      ${methods.map(card).join("")}
+      <p class="assist">Плата за получение указана отдельно. Расходы на дорогу в неё не входят.</p>
+      <div class="actions"><button class="plain" type="button" data-action="cart">Вернуться в корзину</button></div>`, focus);
+  }
+
+  function review() {
+    if (!selected?.window) return;
+    render(`
+      <h1>Проверьте получение</h1>
+      <div class="summary">
+        <p><strong>${selected.label}</strong></p>
+        <p>${selected.window} · ${selected.place}</p>
+        <p>Товар ${money(productPrice)} · получение ${money(selected.fee)}</p>
+        <p><strong>Итого ${money(productPrice + selected.fee)}</strong></p>
+      </div>
+      ${selected.onTime ? "" : '<p class="notice">Получение позже вашего срока.</p>'}
+      <p class="assist">Это предварительно выбранное окно. Готовность самовывоза сообщается отдельно после оформления.</p>
+      <div class="actions">
+        <button type="button" class="primary" data-action="confirm">Подтвердить в демо</button>
+        <button type="button" data-action="change">Изменить способ</button>
+      </div>`, '[data-action="confirm"]');
+  }
+
+  function confirmation() {
+    if (!selected?.window) return;
+    render(`
+      <h1>Способ подтверждён</h1>
+      <div class="summary" role="status">
+        <p><strong>${selected.label} · ${money(productPrice + selected.fee)} итого</strong></p>
+        <p>${selected.window} · ${selected.place}</p>
+      </div>
+      <p class="muted">Учебный заказ не отправлен. Оплаты не было.</p>
+      <div class="actions"><button type="button" data-action="reset">Начать заново</button></div>`,
+      '[data-action="reset"]');
+  }
+
+  function cart() {
+    selected = null;
+    render(`
+      <h1>Корзина</h1>
+      <p>Подарок · ${money(productPrice)}</p>
+      <p class="assist">Вы можете вернуться к выбору способов, когда условия изменятся.</p>
+      <div class="actions"><button type="button" data-action="options">Снова сравнить способы</button></div>`,
+      '[data-action="options"]');
+  }
+
+  function recheck() {
+    const unresolved = methods.find(method => !method.window);
+    if (!unresolved) return;
+    refreshCount += 1;
+    if (refreshCount === 1) {
+      availabilityMessage = "Окно всё ещё не подтверждено.";
+      options('[data-action="recheck"]');
+      return;
+    }
+    Object.assign(unresolved, {window: "Сегодня, 18:10–19:00", onTime: true});
+    availabilityMessage = "";
+    options(`[data-method="${unresolved.id}"]`);
+  }
+
+  root.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button || button.disabled) return;
+
+    switch (button.dataset.action) {
+      case "choose":
+        selected = methods.find(method => method.id === button.dataset.method);
+        review();
+        break;
+      case "change":
+        options(`[data-method="${selected.id}"]`);
+        break;
+      case "confirm":
+        confirmation();
+        break;
+      case "cart":
+        cart();
+        break;
+      case "recheck":
+        recheck();
+        break;
+      case "reset":
+        methods = initialMethods.map(method => ({...method}));
+        selected = null;
+        refreshCount = 0;
+        availabilityMessage = "";
+        options();
+        break;
+      case "options":
+        options();
+        break;
+    }
+  });
+
+  options();
+</script>
+</body>
+</html>
