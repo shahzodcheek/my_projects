@@ -1,2 +1,0 @@
-cohort_pairs,first_t0_utc,last_t0_utc,users,dates_included,pairs_with_repeated_cart,pairs_with_initial_cart_tie,pairs_missing_cart_session,pairs_unknown_category_id,pairs_unknown_category_code,pairs_unknown_price,pairs_zero_price,pairs_with_november_window,pairs_with_november_purchase,pairs_first_purchase_in_november
-938248,2019-10-01 00:00:00,2019-10-31 23:58:09,133818,31,154089,0,331,0,928783,0,500,194127,3431,3353
