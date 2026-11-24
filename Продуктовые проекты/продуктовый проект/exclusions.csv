@@ -1,7 +1,0 @@
-step,rule,row_count,excluded
-1,raw_october_cart_rows,1232385,0
-2,valid_utc_in_october,1232385,0
-3,valid_positive_user_and_product,1232385,0
-4,exact_duplicate_rows,1204218,28167
-5,full_7_day_window,1204218,0
-6,first_eligible_cart_per_pair,938248,265970
